@@ -18,17 +18,14 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: Verify files
+    - name: Download WebView template
       run: |
-        ls -la
-        if [ -f "index.html" ]; then
-          echo "Main files exist"
-        else
-          echo "ERROR: Missing index.html"
-          exit 1
-        fi
+        wget https://github.com/Android-for-PWA/WebView-APK-Builder/archive/main.zip
+        unzip main.zip
+        mv WebView-APK-Builder-main/* .
+        rm -rf WebView-APK-Builder-main main.zip
 
-    - name: Prepare project
+    - name: Prepare project structure
       run: |
         mkdir -p app/src/main/assets/www
         cp *.html *.css *.js app/src/main/assets/www/ || echo "No HTML/CSS/JS files"
@@ -54,4 +51,4 @@ jobs:
       with:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
-    
+        retention-days: 1
