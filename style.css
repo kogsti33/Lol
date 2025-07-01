@@ -1,0 +1,31 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    background: black url('assets/bg.jpg') center center/cover no-repeat;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+#screen {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: red;
+    text-shadow: 0 0 10px red;
+}
+
+.glitch {
+    animation: glitch 1s infinite;
+}
+
+@keyframes glitch {
+    0% { transform: scale(1) rotate(0); }
+    20% { transform: scale(1.01) rotate(1deg); }
+    40% { transform: scale(0.99) rotate(-1deg); }
+    60% { transform: scale(1.01) rotate(1deg); }
+    80% { transform: scale(0.99) rotate(-1deg); }
+    100% { transform: scale(1) rotate(0); }
+}
