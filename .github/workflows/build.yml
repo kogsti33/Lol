@@ -1,0 +1,60 @@
+name: Build APK
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Полная история коммитов
+        submodules: recursive  # Если есть подмодули
+
+    - name: Free disk space
+      run: |
+        sudo apt-get clean
+        sudo rm -rf /usr/local/lib/android/sdk/ndk-bundle
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: Download WebView template
+      run: |
+        wget https://github.com/Android-for-PWA/WebView-APK-Builder/archive/refs/heads/main.zip -O template.zip
+        unzip template.zip -d template
+        cp -r template/WebView-APK-Builder-main/* .
+        rm -rf template template.zip
+
+    - name: Prepare project structure
+      run: |
+        mkdir -p app/src/main/assets/www
+        # Копируем только существующие файлы
+        [ -f *.html ] && cp *.html app/src/main/assets/www/
+        [ -f *.css ] && cp *.css app/src/main/assets/www/
+        [ -f *.js ] && cp *.js app/src/main/assets/www/
+        
+        if [ -d "assets" ]; then
+          mkdir -p app/src/main/assets/www/assets
+          cp -r assets/* app/src/main/assets/www/assets/
+        fi
+
+    - name: Build APK
+      run: |
+        chmod +x gradlew
+        ./gradlew assembleDebug --stacktrace --info --no-daemon
+
+    - name: Upload APK
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 1
